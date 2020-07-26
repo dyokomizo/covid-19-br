@@ -14,15 +14,15 @@ import java.util.TreeSet;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
 
-public final class Tallier<K, V extends Comparable<V>> {
+public final class Acumulador<K, V extends Comparable<V>> {
 	private final SortedMap<K, Multiset<V>> map;
 
-	public Tallier() {
+	public Acumulador() {
 		super();
 		this.map = new TreeMap<>();
 	}
 
-	public Tallier<K, V> tally(Map.Entry<K, V> entry) {
+	public Acumulador<K, V> acumula(Map.Entry<K, V> entry) {
 		checkNotNull(entry, "entry");
 		final K k = checkNotNull(entry.getKey(), "entry.key");
 		final V v = checkNotNull(entry.getValue(), "entry.value");
@@ -35,10 +35,10 @@ public final class Tallier<K, V extends Comparable<V>> {
 		return this;
 	}
 
-	public void saveAs(File file, @SuppressWarnings("unchecked") K... keys) throws IOException {
+	public void salvarComo(File file, Iterable<K> keys) {
 		checkNotNull(file, "file");
 		checkNotNull(keys, "keys");
-		if (keys.length == 0) {
+		if (!keys.iterator().hasNext()) {
 			return;
 		}
 		final SortedSet<V> vs = new TreeSet<>();
@@ -46,29 +46,24 @@ public final class Tallier<K, V extends Comparable<V>> {
 			final Multiset<V> m = map.get(k);
 			vs.addAll(m.elementSet());
 		}
-		try (final FileWriter fw = new FileWriter(
-				new File(file.getParentFile(), saveAsFileName(file.getName(), "CASES")))) {
-			for (final K k : keys) {
-				fw.append(',').append(k.toString());
-			}
-			fw.append("\r\n");
-			for (final V v : vs) {
-				fw.append(String.valueOf(v));
+		try {
+			try (final FileWriter fw = new FileWriter(file)) {
 				for (final K k : keys) {
-					final Multiset<V> m = map.get(k);
-					fw.append(',').append(String.valueOf(m.count(v)));
+					fw.append(',').append(k.toString());
 				}
 				fw.append("\r\n");
+				for (final V v : vs) {
+					fw.append(String.valueOf(v));
+					for (final K k : keys) {
+						final Multiset<V> m = map.get(k);
+						fw.append(',').append(String.valueOf(m.count(v)));
+					}
+					fw.append("\r\n");
+				}
+				fw.flush();
 			}
-			fw.flush();
+		} catch (IOException e) {
+			throw new RuntimeException("erro ao salvar " + file.getAbsolutePath(), e);
 		}
-	}
-
-	public String saveAsFileName(String fileName, String suffix) {
-		final int i = fileName.lastIndexOf('.');
-		if (i < 0) {
-			return fileName + "-" + suffix;
-		}
-		return fileName.substring(0, i) + "-" + suffix + fileName.substring(i);
 	}
 }

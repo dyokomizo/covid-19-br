@@ -18,6 +18,13 @@ public final class Registro implements Serializable {
 		this.campos = checkNotNull(campos, "campos");
 	}
 
+	public boolean has(NomeCampo nomeCampo) {
+		checkNotNull(nomeCampo, "nomeCampo");
+		final String s = campos.get(nomeCampo);
+		checkArgument(s != null, nomeCampo + " ausente");
+		return !s.isEmpty();
+	}
+
 	public String get(NomeCampo nomeCampo) {
 		checkNotNull(nomeCampo, "nomeCampo");
 		final String s = campos.get(nomeCampo);
