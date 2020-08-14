@@ -35,6 +35,10 @@ public final class Acumulador<K, V extends Comparable<V>> {
 		return this;
 	}
 
+	public void salvarComo(File file) {
+		salvarComo(file, map.keySet());
+	}
+
 	public void salvarComo(File file, Iterable<K> keys) {
 		checkNotNull(file, "file");
 		checkNotNull(keys, "keys");

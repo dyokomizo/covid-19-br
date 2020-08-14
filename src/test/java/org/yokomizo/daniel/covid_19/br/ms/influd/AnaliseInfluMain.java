@@ -1,26 +1,21 @@
 package org.yokomizo.daniel.covid_19.br.ms.influd;
 
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.CLASSI_FIN;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.DT_COLETA;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.DT_DIGITA;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.DT_ENCERRA;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.DT_ENTUTI;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.DT_EVOLUCA;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.DT_INTERNA;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.DT_NOTIFIC;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.DT_PCR;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.DT_RAIOX;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.DT_SAIDUTI;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.DT_SIN_PRI;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.EVOLUCAO;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.PCR_RESUL;
-import static org.yokomizo.daniel.covid_19.br.ms.influd.NomeCampo.PCR_SARS2;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import com.google.common.collect.ImmutableSet;
+import org.yokomizo.daniel.covid_19.br.ms.influd.v20200402.AnalisePadraoV20200402;
+import org.yokomizo.daniel.covid_19.br.ms.influd.v20200402.AnalisePadraoV20200727;
 
 public class AnaliseInfluMain {
+	private static final Pattern NOME = Pattern.compile("^INFLUD-(\\d\\d-\\d\\d-\\d\\d\\d\\d).csv$");
+	private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+	private static final LocalDate DATA_NOVO_LEIAUTE = LocalDate.of(2020, 7, 27);
+
 	public static void main(String[] args) {
 		for (String a : args) {
 			if (a.startsWith("--")) {
@@ -29,15 +24,22 @@ public class AnaliseInfluMain {
 			System.out.println(a);
 			System.out.println(System.currentTimeMillis());
 			final File f = new File(a);
-
-			final Committer<Registro> c = new MortesOficiaisPorCovid19(f,
-					ImmutableSet.of(DT_NOTIFIC, DT_SIN_PRI, DT_INTERNA, DT_ENTUTI, DT_SAIDUTI, DT_RAIOX, DT_COLETA,
-							PCR_RESUL, DT_PCR, CLASSI_FIN, EVOLUCAO, DT_EVOLUCA, DT_ENCERRA, DT_DIGITA, PCR_SARS2)) //
-									.andThen(new TempoEstadia(f));
-			for (final Registro r : new Influ(f)) {
-				c.accept(r);
+			final Matcher m = NOME.matcher(f.getName());
+			checkArgument(m.matches(), "Nome invalido %s", f.getAbsolutePath());
+			final LocalDate ld = LocalDate.parse(m.group(1), DATA);
+			if (ld.isBefore(DATA_NOVO_LEIAUTE)) {
+				final Committer<Registro<V20200402>> c = new AnalisePadraoV20200402(f);
+				for (final Registro<V20200402> r : new Influ<>(V20200402.BY_ORDINAL.values(), f)) {
+					c.accept(r);
+				}
+				c.commit();
+			} else {
+				final Committer<Registro<V20200727>> c = new AnalisePadraoV20200727(f);
+				for (final Registro<V20200727> r : new Influ<>(V20200727.BY_ORDINAL.values(), f)) {
+					c.accept(r);
+				}
+				c.commit();
 			}
-			c.commit();
 			System.out.println(System.currentTimeMillis());
 		}
 	}

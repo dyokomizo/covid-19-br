@@ -10,36 +10,36 @@ import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class Registro implements Serializable {
+public final class Registro<K> implements Serializable {
 	private static final long serialVersionUID = -2209725480724054170L;
-	private final Map<NomeCampo, String> campos;
+	private final Map<K, String> campos;
 
-	public Registro(Map<NomeCampo, String> campos) {
+	public Registro(Map<K, String> campos) {
 		this.campos = checkNotNull(campos, "campos");
 	}
 
-	public boolean has(NomeCampo nomeCampo) {
+	public boolean has(K nomeCampo) {
 		checkNotNull(nomeCampo, "nomeCampo");
 		final String s = campos.get(nomeCampo);
 		checkArgument(s != null, nomeCampo + " ausente");
 		return !s.isEmpty();
 	}
 
-	public String get(NomeCampo nomeCampo) {
+	public String get(K nomeCampo) {
 		checkNotNull(nomeCampo, "nomeCampo");
 		final String s = campos.get(nomeCampo);
 		checkArgument(s != null, nomeCampo + " ausente");
 		return s;
 	}
 
-	public Map.Entry<NomeCampo, String> toEntry(NomeCampo nomeCampo) {
+	public Map.Entry<K, String> toEntry(K nomeCampo) {
 		checkNotNull(nomeCampo, "nomeCampo");
-		return new AbstractMap.SimpleEntry<NomeCampo, String>(nomeCampo, get(nomeCampo));
+		return new AbstractMap.SimpleEntry<K, String>(nomeCampo, get(nomeCampo));
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		return (this == o) || ((o instanceof Registro) && campos.equals(((Registro) o).campos));
+		return (this == o) || ((o instanceof Registro<?>) && campos.equals(((Registro<?>) o).campos));
 	}
 
 	@Override
