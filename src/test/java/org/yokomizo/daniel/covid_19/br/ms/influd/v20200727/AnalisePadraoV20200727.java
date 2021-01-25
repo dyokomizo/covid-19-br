@@ -1,4 +1,4 @@
-package org.yokomizo.daniel.covid_19.br.ms.influd.v20200402;
+package org.yokomizo.daniel.covid_19.br.ms.influd.v20200727;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.yokomizo.daniel.covid_19.br.ms.influd.ClassificacaoFinalCaso.COVID_19;

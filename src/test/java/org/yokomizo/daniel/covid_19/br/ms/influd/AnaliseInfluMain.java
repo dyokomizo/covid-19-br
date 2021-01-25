@@ -9,7 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.yokomizo.daniel.covid_19.br.ms.influd.v20200402.AnalisePadraoV20200402;
-import org.yokomizo.daniel.covid_19.br.ms.influd.v20200402.AnalisePadraoV20200727;
+import org.yokomizo.daniel.covid_19.br.ms.influd.v20200727.AnalisePadraoV20200727;
+import org.yokomizo.daniel.covid_19.br.ms.influd.v20200727.PorIdade_V20200727;
+import org.yokomizo.daniel.covid_19.br.ms.influd.v20200727.TempoEstadia_V20200727;
 
 public class AnaliseInfluMain {
 	private static final Pattern NOME = Pattern.compile("^INFLUD-(\\d\\d-\\d\\d-\\d\\d\\d\\d).csv$");
@@ -34,7 +36,9 @@ public class AnaliseInfluMain {
 				}
 				c.commit();
 			} else {
-				final Committer<Registro<V20200727>> c = new AnalisePadraoV20200727(f);
+				final Committer<Registro<V20200727>> c = new AnalisePadraoV20200727(f) //
+						.andThen(new TempoEstadia_V20200727(f)) //
+						.andThen(new PorIdade_V20200727(f));
 				for (final Registro<V20200727> r : new Influ<>(V20200727.BY_ORDINAL.values(), f)) {
 					c.accept(r);
 				}
