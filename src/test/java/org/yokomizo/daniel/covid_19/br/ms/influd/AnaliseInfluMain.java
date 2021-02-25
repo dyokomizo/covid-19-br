@@ -14,7 +14,7 @@ import org.yokomizo.daniel.covid_19.br.ms.influd.v20200727.PorIdade_V20200727;
 import org.yokomizo.daniel.covid_19.br.ms.influd.v20200727.TempoEstadia_V20200727;
 
 public class AnaliseInfluMain {
-	private static final Pattern NOME = Pattern.compile("^INFLUD-(\\d\\d-\\d\\d-\\d\\d\\d\\d).csv$");
+	private static final Pattern NOME = Pattern.compile("^INFLUD(?:21)?-(\\d\\d-\\d\\d-\\d\\d\\d\\d).csv$");
 	private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 	private static final LocalDate DATA_NOVO_LEIAUTE = LocalDate.of(2020, 7, 27);
 
