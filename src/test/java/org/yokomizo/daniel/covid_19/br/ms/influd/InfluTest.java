@@ -51,5 +51,5 @@ public class InfluTest {
 	}
 
 	final Influ<V20200402> i = new Influ<>(V20200402.BY_ORDINAL.values(),
-			new File("src/test/resources/INFLUD-07-07-2020.csv"));
+			new File("src/test/resources/2020/INFLUD-07-07-2020.csv"));
 }
